@@ -1,4 +1,6 @@
-// Returns the 0/1 knapsack problem solution values given a price and value variable and a price budget.
+//! version 1.0 31DEC2018  DIME Analytics bbdaniels@gmail.com
+
+// knapsack - Stata module to solve the 0/1 knapsack problem.
 
 version 12.0
 
@@ -11,7 +13,7 @@ syntax ///
   Price(varname) Value(varname) ///
   [GENerate(string asis)]
 
-* Setup in Stata
+// Setup in Stata
 
 marksample touse
 
@@ -28,7 +30,7 @@ marksample touse
 
   local theLabel : var label `value'
 
-* Mata setup
+// Mata setup
 
 mata: mata clear
 m {
@@ -38,8 +40,7 @@ m {
   	st_view(w=0,.,"`price'","`touse'")
 		w = 0 \ w
 
-* Loop over budget * items space to find solutions
-
+// Loop over [budget x items] space to find solutions
 
   theSolutions = J(`rows',`cols',0)
 
@@ -55,7 +56,7 @@ m {
     }
   }
 
-* Get list of chosen items
+// Get list of chosen items
 
   isChosen = J(`rows',1,0)
   theColumn = `cols'
@@ -66,7 +67,7 @@ m {
       }
   }
 
-* Pass back to Stata
+// Pass back to Stata
 
   isChosen = isChosen[|2\.|]
 
@@ -77,36 +78,20 @@ m {
   theSolution = theSolutions[`rows',`cols']
   st_matrix("theSolution",theSolution)
 
-* End Mata
 
-  } // End Mata
+// End Mata
+  }
 
-* Print the solution in Stata and save to r()
+// Print the solution in Stata and save to r()
 
   local theSolution = el(theSolution,1,1)
   return scalar max = `theSolution'
   di in red "Maximum Total `theLabel' = `theSolution'"
 
-* Finish up
+// Finish up
 
   cap mat drop theSolution
 
 end
 
-/*********** Demo *********
-
-sysuse auto, clear
-keep mpg price
-rename (mpg price)(cost value)
-
-set trace off
-set tracedepth 2
-
-knapsack 500, p(cost) v(value) gen(chosen)
-
-di "`r(max)'"
-table chosen , c(sum cost sum value)
-
-
-
-* Have a lovely day!
+// Have a lovely day!
